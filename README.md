@@ -22,6 +22,6 @@ This plugin provided enhanced default Terminus Build Tools configuration used in
 
 To install this plugin using Terminus 3:
 ```
-terminus self:plugin:install lcatlett/terminus-power-tools
+terminus self:plugin:install terminus-power-tools
 ```
 

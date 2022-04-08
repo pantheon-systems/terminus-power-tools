@@ -1,5 +1,5 @@
 {
-    "name": "lcatlett/terminus-power-tools",
+    "name": "pantheon-systems/terminus-power-tools",
     "description": "Terminus commands extending Pantheon's Terminus Build Tools.",
     "type": "terminus-plugin",
     "license": "MIT",
