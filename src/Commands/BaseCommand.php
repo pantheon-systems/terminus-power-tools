@@ -143,4 +143,78 @@ class BaseCommand extends ProjectCreateCommand {
         passthru("terminus new-relic:enable $site_name --no-interaction");
     }
 
+    /** 
+     * Configures Lando for local behat testing.
+     * @authorize
+     *
+     * @command build:lando:behat
+     * @aliases lando:behat
+     */
+    public function setupBehat()
+    {
+        $this->log()->notice('Generating ./drush/lando.aliases.drushrc.php and ./tests/behat/behat-lando.yml files for Behat configuration');
+        // Get the project name
+        if (empty($site_name)) {
+            $site_name = basename(getcwd());
+        }
+        if (file_exists('.ci/test/template.lando.aliases.drushrc.php')) {
+            $this->configureBehat('./drush/lando.aliases.drushrc.php', '.ci/test/template.lando.aliases.drushrc.php', $site_name);
+        }
+        if (file_exists('.ci/test/template.behat-lando.yml')) {
+            $this->configureBehat('./tests/behat/behat-lando.yml', '.ci/test/template.behat-lando.yml', $site_name);
+        }
+
+        $this->log()->notice('Success! Behat configuration was generated and committed to the local repository. Run Behat by running "lando behat"');
+    }
+
+    /**
+     * Helper method for configuring Behat for lando.
+     * 
+     * @param string $$generate_file Generate file relevant path.
+     * @param string $template_file Template relevant path.
+     * @param string $site_name Pantheon site name.
+     */
+    protected function configureBehat($generate_file, $template_file, $site_name)
+    {
+        $this->log()->notice($template_file . ' exists, generating new ' . $generate_file);
+
+            $result = $this->taskFilesystemStack()
+                ->copy($template_file, $generate_file)
+                ->stopOnFail()
+                ->run();
+
+            if (!$result->wasSuccessful()) {
+                $this->log()->notice('Error: Unable to copy ' . $template_file . ' to ' . $generate_file);
+                return;
+            }
+
+            $result = $this->taskReplaceInFile($generate_file)
+                ->from('%SITE_NAME%')
+                ->to($site_name)
+                ->run();
+
+            if (!$result->wasSuccessful()) {
+                $this->log()->notice('Error: Unable to generate config for ' . $generate_file);
+                return;
+            }
+
+            $builder = $this->collectionBuilder();
+
+            $builder
+                ->taskGitStack()
+                ->stopOnFail()
+                ->add($generate_file)
+                ->commit('Added ' . $generate_file . ' local behat testing configuration.');
+
+            $builder->taskFilesystemStack()
+                ->remove($template_file);
+
+            return $builder->run();
+
+            if (!$builder->wasSuccessful()) {
+                $this->log()->notice('Error: Unable to commit ' . $generate_file . ' to local repository.');
+                return;
+            }
+    }
+
 }
