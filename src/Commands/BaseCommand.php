@@ -152,13 +152,10 @@ class BaseCommand extends ProjectCreateCommand {
      */
     public function setupBehat()
     {
-        $this->log()->notice('Generating ./drush/lando.aliases.drushrc.php and ./tests/behat/behat-lando.yml files for Behat configuration');
+        $this->log()->notice('Generating ./tests/behat/behat-lando.yml files for Behat configuration');
         // Get the project name
         if (empty($site_name)) {
             $site_name = basename(getcwd());
-        }
-        if (file_exists('.ci/test/template.lando.aliases.drushrc.php')) {
-            $this->configureBehat('./drush/lando.aliases.drushrc.php', '.ci/test/template.lando.aliases.drushrc.php', $site_name);
         }
         if (file_exists('.ci/test/template.behat-lando.yml')) {
             $this->configureBehat('./tests/behat/behat-lando.yml', '.ci/test/template.behat-lando.yml', $site_name);
